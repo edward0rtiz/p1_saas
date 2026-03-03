@@ -4,8 +4,8 @@ export default function Document() {
   return (
     <Html lang="en">
       <Head>
-        <title>Business Idea Generator</title>
-        <meta name="description" content="AI-powered business idea generation" />
+        <title>Refining User Stories Assistant</title>
+        <meta name="description" content="AI-powered product owner refining tool" />
       </Head>
       <body>
         <Main />
