@@ -11,12 +11,16 @@ clerk_guard = ClerkHTTPBearer(clerk_config)
 
 @app.get("/api")
 def idea(creds: HTTPAuthorizationCredentials = Depends(clerk_guard)):
-    user_id = creds.decoded["sub"]  # User ID from JWT - available for future use
-    # We now know which user is making the request! 
-    # You could use user_id to:
-    # - Track usage per user
-    # - Store generated ideas in a database
-    # - Apply user-specific limits or customization
+    user_id = creds.decoded["sub"]
+    subscription_plan = creds.decoded.get("subscription", "free")
+    
+    # Apply different limits based on plan
+    if subscription_plan == "premium_plan":
+        # Unlimited or high limit
+        pass
+    else:
+        # Limited access
+        pass
     
     client = OpenAI()
     prompt = [{"role": "user", "content": "Reply with a new business idea for AI Agents, formatted with headings, sub-headings and bullet points"}]
