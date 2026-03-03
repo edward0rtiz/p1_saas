@@ -71,6 +71,8 @@ function IdeaGenerator() {
     );
 }
 
+const allowedPlans = ["user:free_user", "user:basic_plan", "user:premium_plan"] as const;
+
 export default function Product() {
     return (
         <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
@@ -81,7 +83,7 @@ export default function Product() {
 
             {/* Subscription Protection */}
             <Protect
-                plan={["basic_plan", "premium_plan"] as any}
+                condition={(has) => allowedPlans.some((p) => has({ plan: p }))}
                 fallback={
                     <div className="container mx-auto px-4 py-12">
                         <header className="text-center mb-12">
