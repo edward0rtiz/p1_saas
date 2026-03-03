@@ -46,14 +46,47 @@ export default function Home() {
           </p>
           
           {/* Pricing Preview */}
-          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-xl p-6 max-w-sm mx-auto mb-8">
-            <h3 className="text-2xl font-bold mb-2">Premium Subscription</h3>
-            <p className="text-4xl font-bold text-blue-600 mb-2">$10<span className="text-lg text-gray-600">/month</span></p>
-            <ul className="text-left text-gray-600 dark:text-gray-400 mb-6">
-              <li className="mb-2">✓ Unlimited idea generation</li>
-              <li className="mb-2">✓ Advanced AI models</li>
-              <li className="mb-2">✓ Priority support</li>
-            </ul>
+          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-xl p-6 max-w-4xl mx-auto mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="text-left">
+                <h3 className="text-2xl font-bold mb-2">Free Plan</h3>
+                <p className="text-4xl font-bold text-blue-600 mb-2">
+                  $0
+                  <span className="text-lg text-gray-600">/month</span>
+                </p>
+                <ul className="text-gray-600 dark:text-gray-400">
+                  <li className="mb-2">✓ Limited idea generation</li>
+                  <li className="mb-2">Advanced AI models</li>
+                  <li className="mb-2">Basic support</li>
+                </ul>
+              </div>
+
+              <div className="text-left">
+                <h3 className="text-2xl font-bold mb-2">Basic Plan</h3>
+                <p className="text-4xl font-bold text-blue-600 mb-2">
+                  $5
+                  <span className="text-lg text-gray-600">/month</span>
+                </p>
+                <ul className="text-gray-600 dark:text-gray-400">
+                  <li className="mb-2">✓ Unlimited idea generation</li>
+                  <li className="mb-2">Advanced AI models</li>
+                  <li className="mb-2">Basic support</li>
+                </ul>
+              </div>
+
+              <div className="text-left">
+                <h3 className="text-2xl font-bold mb-2">Premium Basic Plan</h3>
+                <p className="text-4xl font-bold text-blue-600 mb-2">
+                  $10
+                  <span className="text-lg text-gray-600">/month</span>
+                </p>
+                <ul className="text-gray-600 dark:text-gray-400">
+                  <li className="mb-2">✓ Unlimited idea generation</li>
+                  <li className="mb-2">✓ Advanced AI models</li>
+                  <li className="mb-2">✓ Priority support</li>
+                </ul>
+              </div>
+            </div>
           </div>
           
           <SignedOut>
