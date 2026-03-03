@@ -1,39 +1,60 @@
 "use client"
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 import { useAuth } from '@clerk/nextjs';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { Protect, PricingTable, UserButton } from '@clerk/nextjs';
+import { useRouter, useSearchParams } from "next/navigation";
+
+const allowedPlans = ["user:basic_plan", "user:premium_plan"] as const;
 
 function IdeaGenerator() {
     const { getToken } = useAuth();
     const [idea, setIdea] = useState<string>('…loading');
+    // Abort SSE on unmount / re-render (prevents double streams in dev strict mode)
+    const abortRef = useRef<AbortController | null>(null);
 
     useEffect(() => {
         let buffer = '';
+        const ac = new AbortController();
+        abortRef.current = ac;
         (async () => {
             const jwt = await getToken();
             if (!jwt) {
                 setIdea('Authentication required');
                 return;
             }
-            
-            await fetchEventSource('/api', {
-                headers: { Authorization: `Bearer ${jwt}` },
-                onmessage(ev) {
+
+            try {
+                await fetchEventSource("/api", {
+                  signal: ac.signal,
+                  headers: { Authorization: `Bearer ${jwt}` },
+                  onmessage(ev) {
                     buffer += ev.data;
                     setIdea(buffer);
-                },
-                onerror(err) {
-                    console.error('SSE error:', err);
-                    // Don't throw - let it retry
-                }
-            });
-        })();
-    }, []); // Empty dependency array - run once on mount
+                  },
+                  onerror(err) {
+                    // If we aborted, do nothing.
+                    if (ac.signal.aborted) return;
+        
+                    console.error("SSE error:", err);
+                    // Returning without throw lets fetch-event-source retry by default
+                  },
+                });
+              } catch (err) {
+                if (ac.signal.aborted) return;
+                console.error("SSE fatal error:", err);
+                setIdea("Something went wrong generating the idea.");
+              }
+            })();
+        
+            return () => {
+              ac.abort();
+            };
+          }, [getToken]);
 
     return (
         <div className="container mx-auto px-4 py-12">
@@ -71,9 +92,28 @@ function IdeaGenerator() {
     );
 }
 
-const allowedPlans = ["user:free_user", "user:basic_plan", "user:premium_plan"] as const;
-
 export default function Product() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+   // const handledCheckoutRef = useRef(false);
+
+    useEffect(() => {
+        const sub = searchParams.get("sub");
+        if (sub !== "updated") return;
+        const key = "clerk_checkout_handled";
+        if (typeof window === "undefined") return;
+        if (sessionStorage.getItem(key) === "1") {
+          // If we already handled it, make sure URL is clean and stop.
+          window.history.replaceState(null, "", "/product");
+          return;
+        }    
+        sessionStorage.setItem(key, "1");
+        // Remove query param synchronously (no async router.replace race)
+        window.history.replaceState(null, "", "/product");
+        // Now refresh once to re-evaluate plans
+        router.refresh();
+      }, [router, searchParams]);
+      
     return (
         <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
             {/* User Menu in Top Right */}
@@ -95,7 +135,7 @@ export default function Product() {
                             </p>
                         </header>
                         <div className="max-w-4xl mx-auto">
-                            <PricingTable />
+                            <PricingTable for="user" newSubscriptionRedirectUrl="/product?sub=updated" />
                         </div>
                     </div>
                 }
